@@ -1,5 +1,7 @@
 using StardewModdingAPI;
+
 using StardewValley.Buildings;
+
 using System;
 
 namespace GreenhouseUpgrades.Framework
@@ -12,13 +14,16 @@ namespace GreenhouseUpgrades.Framework
         /// <summary>Provides simplified APIs for writing mods.</summary>
         private static IModHelper Helper;
 
+        private static bool MoveEnabled;
+
         /// <summary>Setup Monitor and Helper.</summary>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
         /// <param name="modHelper">Provides simplified APIs for writing mods.</param>
-        public static void SetUp(IMonitor monitor, IModHelper modHelper)
+        public static void SetUp(IMonitor monitor, IModHelper modHelper, bool moveFruitTrees)
         {
             Monitor = monitor;
             Helper = modHelper;
+            MoveEnabled = moveFruitTrees;
         }
 
         /// <summary>Stores the upgrade level on GreenhouseBuilding modData.</summary>
@@ -33,7 +38,13 @@ namespace GreenhouseUpgrades.Framework
                     if (__instance.daysUntilUpgrade.Value == 1)
                     {
                         __instance.daysUntilUpgrade.Value = 0;
-                        __instance.modData[ModEntry.DataKey] = (ModEntry.GetUpgradeLevel(__instance) + 1).ToString();
+                        int newLevel = (ModEntry.GetUpgradeLevel(__instance) + 1);
+                        __instance.modData[ModEntry.DataKey] = newLevel.ToString();
+                        if (MoveEnabled)
+                        {
+                            Monitor.Log("Signaling update.", LogLevel.Info);
+                            FruitTreeMover.Upgraded();
+                        }
                     }
                 }
 

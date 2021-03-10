@@ -55,6 +55,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Framework\FruitTreeMover.cs" />
     <Compile Include="Framework\IContentPatcherAPI.cs" />
     <Compile Include="Framework\ModConfig.cs" />
     <Compile Include="Framework\UpgradePatches.cs" />

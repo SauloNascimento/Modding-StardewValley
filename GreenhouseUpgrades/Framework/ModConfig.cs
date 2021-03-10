@@ -5,6 +5,8 @@ namespace GreenhouseUpgrades.Framework
     /// <summary>The mod configuration model.</summary>
     class ModConfig
     {
+        public bool MoveFruitTrees { get; set; } = true;
+
         /// <summary>First upgrade price</summary>
         public int UpgradePrice1 { get; set; } = 200000;
 

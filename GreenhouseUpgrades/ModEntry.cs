@@ -1,13 +1,16 @@
-using ContentPatcher;
-using GreenhouseUpgrades.Framework;
-using Harmony;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
+
 using StardewValley;
 using StardewValley.Buildings;
 using StardewValley.Menus;
 using StardewValley.Objects;
 using StardewValley.TerrainFeatures;
+
+using ContentPatcher;
+using Harmony;
+using GreenhouseUpgrades.Framework;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +20,7 @@ namespace GreenhouseUpgrades
     class ModEntry : Mod
     {
         /// <summary>The key for the upgrade level on GreenhouseBuilding modData</summary>
-        public static String DataKey = "Cecidelus.GreenhouseUpgrades/upgrade-level";
+        public static readonly String DataKey = "Cecidelus.GreenhouseUpgrades/upgrade-level";
 
         /// <summary>The mod settings.</summary>
         private ModConfig Config;
@@ -40,12 +43,14 @@ namespace GreenhouseUpgrades
             I18n.Init(helper.Translation);
 
             // Starting Harmony
-            UpgradePatches.SetUp(Monitor, helper);
+            UpgradePatches.SetUp(Monitor, helper, Config.MoveFruitTrees);
             var harmony = HarmonyInstance.Create(this.ModManifest.UniqueID);
             harmony.Patch(
                 original: AccessTools.Method(typeof(Building), nameof(Building.dayUpdate)),
                 prefix: new HarmonyMethod(typeof(UpgradePatches), nameof(UpgradePatches.Upgrade_Prefix))
             );
+
+            FruitTreeMover.SetUp(Monitor);
 
             // Events Hooks
             helper.Events.GameLoop.GameLaunched += this.OnGameLaunched;
@@ -100,6 +105,8 @@ namespace GreenhouseUpgrades
             var greenhouse = Game1.getFarm().buildings.OfType<GreenhouseBuilding>().FirstOrDefault();
             int currentLevel = GetUpgradeLevel(greenhouse);
 
+            FruitTreeMover.MoveTrees(currentLevel);
+
             if (currentLevel == 2)
                 this.WaterGreenhouse();
         }
@@ -115,7 +122,7 @@ namespace GreenhouseUpgrades
                 return;
 
             if (e.NewMenu is CarpenterMenu &&
-                !Helper.Reflection.GetField<bool>(e.NewMenu, "magicalConstruction").GetValue())
+                !this.Helper.Reflection.GetField<bool>(e.NewMenu, "magicalConstruction").GetValue())
             {
                 var greenhouse = Game1.getFarm().buildings.OfType<GreenhouseBuilding>().FirstOrDefault();
                 int currentLevel = GetUpgradeLevel(greenhouse);
