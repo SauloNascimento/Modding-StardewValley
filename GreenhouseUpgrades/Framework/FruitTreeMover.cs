@@ -10,83 +10,80 @@ using System.Collections.Generic;
 
 namespace GreenhouseUpgrades.Framework
 {
+    /// <summary>Move the Fruit Trees in the greenhouse when needed. </summary>
     class FruitTreeMover
     {
+        /// <summary>Whether the greenhouse just upgraded.</summary>
         private static bool justUpgraded;
 
         /// <summary>Encapsulates monitoring and logging.</summary>
         private static IMonitor Monitor;
 
+        /// <summary>Setup Monitor.</summary>
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
         public static void SetUp(IMonitor monitor)
         {
             Monitor = monitor;
         }
 
+        /// <summary>Notifies FruitTreeMover that the greenhouse has been updated.</summary>
         public static void Upgraded()
         {
             justUpgraded = true;
         }
 
+        /// <summary>Move the Fruit Trees in the greenhouse if an upgrade happened.</summary>
+        /// <param name="newLevel">The upgrade level of the greenhouse after the upgrade.</param>
         public static void MoveTrees(int newLevel)
         {
             if (justUpgraded)
             {
                 justUpgraded = false;
 
-                Monitor.Log("Starting the move process.", LogLevel.Info);
-
                 var greenhouse = Game1.getLocationFromName("Greenhouse");
                 if (greenhouse != null)
                 {
-                    int countTrees = 0;
-                    int bottomMoved = 0;
-                    int rightMoved = 0;
-
+                    // Defining the offset to be applied for bottom and right side trees.
                     Vector2 bottomOffset = (newLevel == 1) ? new Vector2(0, 5) : new Vector2(0, 6);
                     Vector2 rightOffset = (newLevel == 1) ? new Vector2(3, 0) : new Vector2(6, 0);
 
+                    // List of bottom and right side trees to move.
                     List<FruitTree> moveBottom = new List<FruitTree>();
                     List<FruitTree> moveRight = new List<FruitTree>();
 
-                    Monitor.Log(String.Join(" ", "Bottom | Right offsets:", bottomOffset, "|", rightOffset), LogLevel.Info);
-
+                    // Finding the fruit trees.
                     foreach (var terrain in greenhouse.terrainFeatures.Values)
                     {
                         if (terrain is FruitTree fruitTree)
                         {
-                            countTrees++;
+                            // Checking if the tree is on the bottom or right side then
+                            // add it to the respective list.
                             if (BottomSideTree(newLevel, fruitTree))
                             {
-                                bottomMoved++;
                                 moveBottom.Add(fruitTree);
                             }
                             else if (RightSideTree(newLevel, fruitTree))
                             {
-                                rightMoved++;
                                 moveRight.Add(fruitTree);
                             }
                         }
                     }
 
+                    // Moving bottom side trees.
                     foreach (var fruitTree in moveBottom)
                     {
                         Vector2 newTile = fruitTree.currentTileLocation + bottomOffset;
-                        Monitor.Log(String.Join(" ", "Moving from:", fruitTree.currentTileLocation, "to", newTile), LogLevel.Info);
                         greenhouse.terrainFeatures.Remove(fruitTree.currentTileLocation);
                         greenhouse.terrainFeatures.Add(newTile, fruitTree);
                     }
 
+                    // Moving right side trees.
                     foreach (var fruitTree in moveRight)
                     {
                         Vector2 newTile = fruitTree.currentTileLocation + rightOffset;
-                        Monitor.Log(String.Join(" ", "Moving from:", fruitTree.currentTileLocation, "to", newTile), LogLevel.Info);
                         greenhouse.terrainFeatures.Remove(fruitTree.currentTileLocation);
                         greenhouse.terrainFeatures.Add(newTile, fruitTree);
                     }
-
-                    Monitor.Log(countTrees + " fruit trees found.", LogLevel.Info);
-                    Monitor.Log(bottomMoved + " bottom trees moved.", LogLevel.Info);
-                    Monitor.Log(rightMoved + " right trees moved.", LogLevel.Info);
                 }
                 else
                 {
@@ -95,6 +92,12 @@ namespace GreenhouseUpgrades.Framework
             }
         }
 
+        /// <summary>
+        /// Checks if a FruitTree is localized on the bottom side of the greenhouse based on the new upgrade level.
+        /// </summary>
+        /// <param name="newLevel">The new upgrade level.</param>
+        /// <param name="fruitTree">The fruit tree to check.</param>
+        /// <returns></returns>
         private static bool BottomSideTree(int newLevel, FruitTree fruitTree)
         {
             float x = fruitTree.currentTileLocation.X;
@@ -111,6 +114,12 @@ namespace GreenhouseUpgrades.Framework
             }
         }
 
+        /// <summary>
+        /// Checks if a FruitTree is localized on the right side of the greenhouse based on the new upgrade level.
+        /// </summary>
+        /// <param name="newLevel">The new upgrade level.</param>
+        /// <param name="fruitTree">The fruit tree to check.</param>
+        /// <returns></returns>
         private static bool RightSideTree(int newLevel, FruitTree fruitTree)
         {
             float x = fruitTree.currentTileLocation.X;

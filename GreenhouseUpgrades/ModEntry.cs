@@ -52,6 +52,12 @@ namespace GreenhouseUpgrades
 
             FruitTreeMover.SetUp(Monitor);
 
+            // Adding console comand for tree moving.
+            helper.ConsoleCommands.Add("move_trees",
+                "Move greenhouse fruit trees to the given upgrade level.\n" +
+                "\nUsage: move_trees <level>\n- level: the upgrade level to perform the move.",
+                this.DoMoveTrees);
+
             // Events Hooks
             helper.Events.GameLoop.GameLaunched += this.OnGameLaunched;
             helper.Events.GameLoop.DayStarted += this.OnDayStarted;
@@ -213,6 +219,19 @@ namespace GreenhouseUpgrades
             var pots = greenhouse.objects.Values.OfType<IndoorPot>();
             bool potCrops = pots.Select(p => p.hoeDirt.Value.readyForHarvest()).Contains(true);
             return soilCrops || potCrops;
+        }
+
+        /// <summary>Forces the fruit tree move process for the given upgrade level.</summary>
+        /// <param name="command">The name of the command invoked</param>
+        /// <param name="args">The arguments received by the command. Each word after the command name is a separate argument.</param>
+        private void DoMoveTrees(string command, string[] args)
+        {
+            if (Context.IsWorldReady)
+            {
+                FruitTreeMover.Upgraded();
+                FruitTreeMover.MoveTrees(int.Parse(args[0]));
+                Monitor.Log($"Trees moved as if greenhouse upgrade {args[0]} has been completed now.", LogLevel.Info);
+            }
         }
     }
 }

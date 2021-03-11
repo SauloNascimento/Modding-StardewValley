@@ -14,6 +14,7 @@ namespace GreenhouseUpgrades.Framework
         /// <summary>Provides simplified APIs for writing mods.</summary>
         private static IModHelper Helper;
 
+        /// <summary>Whether the fruit trees in greenhouse should be moved after an upgrade.</summary>
         private static bool MoveEnabled;
 
         /// <summary>Setup Monitor and Helper.</summary>
@@ -26,7 +27,7 @@ namespace GreenhouseUpgrades.Framework
             MoveEnabled = moveFruitTrees;
         }
 
-        /// <summary>Stores the upgrade level on GreenhouseBuilding modData.</summary>
+        /// <summary>Stores the upgrade level on GreenhouseBuilding modData and notify the upgrade when needed.</summary>
         /// <param name="__instance">The Building Upgraded</param>
         /// <returns></returns>
         public static bool Upgrade_Prefix(GreenhouseBuilding __instance)
@@ -42,7 +43,6 @@ namespace GreenhouseUpgrades.Framework
                         __instance.modData[ModEntry.DataKey] = newLevel.ToString();
                         if (MoveEnabled)
                         {
-                            Monitor.Log("Signaling update.", LogLevel.Info);
                             FruitTreeMover.Upgraded();
                         }
                     }
