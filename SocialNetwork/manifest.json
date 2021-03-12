@@ -1,7 +1,7 @@
 ﻿{
     "Name": "SocialNetwork",
     "Author": "Cecidelus",
-    "Version": "1.0.0-beta",
+    "Version": "1.0.0",
     "Description": "Makes your friendsship with each character affects your friendship with their friends and family.",
     "UniqueID": "Cecidelus.SocialNetwork",
     "EntryDll": "SocialNetwork.dll",
